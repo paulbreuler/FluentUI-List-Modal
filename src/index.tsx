@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import React from "react";
 import * as faker from "faker";
 import { IListItem } from "./Controls/DetailsListSimple";
+import { PrimaryButton } from "@fluentui/react";
 
 // Populate with items for demos.
 
@@ -49,7 +50,7 @@ class App extends React.Component<{}, IAppState> {
       });
     }
     this.state = {
-      isModalOpen: true
+      isModalOpen: false
     };
   }
 
@@ -63,13 +64,21 @@ class App extends React.Component<{}, IAppState> {
 
   render() {
     return (
-      <LookupModal
-        records={this._allItems}
-        columns={this._columns}
-        onSelected={this.onSelected.bind(this)}
-        isModalOpen={this.state.isModalOpen}
-        hideModal={this.hideModal.bind(this)}
-      />
+      <React.Fragment>
+        <PrimaryButton
+          onClick={() => {
+            this.setState({ isModalOpen: true });
+          }}
+          text="Open list modal"
+        />
+        <LookupModal
+          records={this._allItems}
+          columns={this._columns}
+          onSelected={this.onSelected.bind(this)}
+          isModalOpen={this.state.isModalOpen}
+          hideModal={this.hideModal.bind(this)}
+        />
+      </React.Fragment>
     );
   }
 }
