@@ -5,7 +5,7 @@
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
-    "@fluentui/react": "8.6.1",
+    "@fluentui/react": "8.9.2",
     "@types/faker": "5.5.0",
     "@types/react": "17.0.3",
     "@types/react-dom": "17.0.3",

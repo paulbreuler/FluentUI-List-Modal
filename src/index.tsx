@@ -3,13 +3,23 @@ import ReactDOM from "react-dom";
 import React from "react";
 import * as faker from "faker";
 import { IListItem } from "./Controls/DetailsListSimple";
-import { PrimaryButton } from "@fluentui/react";
+import { mergeStyleSets, PrimaryButton, Stack } from "@fluentui/react";
 
 // Populate with items for demos.
 
 interface IAppState {
   isModalOpen: boolean;
 }
+
+const pageStyle = mergeStyleSets({
+  center: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "200px",
+    border: "3px solid green"
+  }
+});
 
 class App extends React.Component<{}, IAppState> {
   private _allItems: IListItem[] = [];
@@ -65,12 +75,19 @@ class App extends React.Component<{}, IAppState> {
   render() {
     return (
       <React.Fragment>
-        <PrimaryButton
-          onClick={() => {
-            this.setState({ isModalOpen: true });
-          }}
-          text="Open list modal"
-        />
+        <Stack grow>
+          <Stack horizontal horizontalAlign="center">
+            <Stack verticalAlign="center">
+              <h1>Lookup Modal Example</h1>
+              <PrimaryButton
+                onClick={() => {
+                  this.setState({ isModalOpen: true });
+                }}
+                text="Open Modal"
+              />
+            </Stack>
+          </Stack>
+        </Stack>
         <LookupModal
           records={this._allItems}
           columns={this._columns}
