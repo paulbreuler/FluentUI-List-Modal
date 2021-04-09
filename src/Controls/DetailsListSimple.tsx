@@ -6,9 +6,11 @@ import {
   MarqueeSelection,
   DetailsListLayoutMode,
   TextField,
-  SelectionMode
+  SelectionMode,
+  IDetailsList
 } from "@fluentui/react";
 import { listStyles, textFieldStyles } from "./styles/DetailsListSimple-styles";
+import { createRef } from "react";
 
 export interface IDetailsListSimpleProps<T = any> {
   columns: IColumn[];
@@ -24,6 +26,7 @@ export interface IListItem<T = any> {
 export interface IDetailsListSimpleState {
   items: IListItem[];
   selectionDetails: IListItem;
+  needshorizontalScrollBar: boolean;
 }
 
 export class DetailsListSimple extends React.Component<
@@ -33,6 +36,7 @@ export class DetailsListSimple extends React.Component<
   private _selection: Selection;
   private _allItems: IListItem[];
   private _columns: IColumn[];
+  private _root;
 
   constructor(props: IDetailsListSimpleProps) {
     super(props);
@@ -49,12 +53,24 @@ export class DetailsListSimple extends React.Component<
 
     this.state = {
       items: this._allItems,
-      selectionDetails: this._getSelectionDetails()
+      selectionDetails: this._getSelectionDetails(),
+      needshorizontalScrollBar: false
     };
+    debugger;
+    this._root = createRef<IDetailsList>();
+    this._getHorizontalScrollBar = this._getHorizontalScrollBar.bind(this);
   }
 
   componentDidMount() {
+    if (!this._root.current) {
+      return;
+    }
     window.dispatchEvent(new Event("resize"));
+    window.addEventListener("resize", this._getHorizontalScrollBar);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this._getHorizontalScrollBar);
   }
 
   private _onChangeText = (
@@ -73,6 +89,30 @@ export class DetailsListSimple extends React.Component<
     });
   };
 
+  // need to check container vs contents not modal vs list... needs updated when less sleepy
+  private _getHorizontalScrollBar(): void {
+    let needsHorizontalScrollBar = false;
+    debugger;
+    let actualRoot = (this._root.current as any)._root;
+    let parentElement = actualRoot.current.parentElement as HTMLDivElement;
+    if (
+      actualRoot &&
+      actualRoot.current &&
+      actualRoot.current.firstElementChild
+    ) {
+      const parentWidth = parentElement.clientWidth;
+      const rootWidth = actualRoot.current.firstElementChild.clientWidth;
+      if (parentWidth > 0 && parentWidth > rootWidth) {
+        needsHorizontalScrollBar = parentWidth - rootWidth > 1;
+      }
+    }
+    if (this.state.needshorizontalScrollBar !== needsHorizontalScrollBar) {
+      this.setState({
+        needshorizontalScrollBar: needsHorizontalScrollBar
+      });
+    }
+  }
+
   render() {
     const { items } = this.state;
     return (
@@ -84,6 +124,7 @@ export class DetailsListSimple extends React.Component<
         />
         <MarqueeSelection selection={this._selection}>
           <DetailsList
+            componentRef={this._root}
             items={items}
             columns={this.props.columns}
             setKey="set"
@@ -96,6 +137,11 @@ export class DetailsListSimple extends React.Component<
             checkButtonAriaLabel="Row checkbox"
             onItemInvoked={(item) => this._onItemInvoked(item)}
             className={[listStyles.body, listStyles.container].join(" ")}
+            styles={
+              this.state.needshorizontalScrollBar
+                ? {}
+                : { root: { overflowX: "hidden" } }
+            }
           />
         </MarqueeSelection>
       </React.Fragment>
